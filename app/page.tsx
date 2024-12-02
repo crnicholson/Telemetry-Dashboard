@@ -96,12 +96,13 @@ export default function Home() {
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto bg-gray-100 min-h-screen">
-      <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
+    <div className="p-8 max-w-4xl mx-auto min-h-screen">
+      <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-2">
         Glider Data Dashboard
       </h1>
+      <p className="mb-8 text-center">Custom designed for <a className="text-blue-600 underline" href="https://github.com/crnicholson/StratoSoar-MK3">StratoSoar-MK3</a></p>
 
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-50 rounded-lg shadow-lg p-6 mb-6">
         <label className="block text-lg font-medium text-gray-700 mb-2">
           Select a Glider:
         </label>
@@ -121,13 +122,13 @@ export default function Home() {
 
       <button
         onClick={handleStartPolling}
-        className="w-full bg-blue-600 text-white text-lg font-medium py-3 rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        className="w-full bg-blue-100 text-blue-700 text-lg font-medium py-3 rounded-lg shadow-md border border-blue-400 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
       >
         Start Polling
       </button>
 
       {isPolling && (
-        <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+        <div className="bg-gray-50 rounded-lg shadow-lg p-6 mt-6">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
             Change Glider Data
           </h2>
@@ -154,7 +155,7 @@ export default function Home() {
           />
           <button
             onClick={changeGlider}
-            className="w-full bg-green-600 text-white text-lg font-medium py-3 rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none"
+            className="w-full bg-green-100 text-green-700 text-lg font-medium py-3 rounded-lg shadow-md border border-green-400 hover:bg-green-50 focus:ring-2 focus:ring-green-500 focus:outline-none"
           >
             Change Glider Data
           </button>
@@ -168,6 +169,8 @@ export default function Home() {
       )}
 
       {responseData && <ResponseDisplay data={responseData} />}
+
+      <p className="mt-10 text-center">Copyright 2024 Charles Nicholson. Open source on <a className="text-blue-600 underline" href="https://github.com/crnicholson/Telemetry-Veiwer">GitHub.</a></p>
     </div>
   );
 }
@@ -217,11 +220,11 @@ function ResponseDisplay({ data }: ResponseDisplayProps) {
   };
 
   return (
-    <div className="border border-gray-300 rounded-lg p-6 bg-gray-50 mt-6 shadow-sm">
+    <div className=" rounded-lg p-6 bg-gray-50 mt-6 shadow-lg">
       <h2 className="font-bold text-2xl mb-4 text-gray-800">Response Data</h2>
       {Object.entries(groupedData).map(([section, fields]) => (
         <div key={section} className="mb-6">
-          <h3 className="font-semibold text-lg text-gray-700 bg-gray-200 p-2 rounded-md">
+          <h3 className="font-semibold text-lg text-gray-700 bg-gray-100 p-2 rounded-md">
             {section}
           </h3>
           <div className="grid grid-cols-2 gap-4 mt-2">
