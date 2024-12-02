@@ -8,8 +8,11 @@ export default function Home() {
   const [inputCallSign, setCallSign] = useState('');
   const [responseData, setResponseData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isPolling, setIsPolling] = useState(false);  /
+  const [isPolling, setIsPolling] = useState(false);
   const [allGliders, setAllGliders] = useState(null);
+  const [abort, setAbort] = useState(null);
+  const [tLat, setTLat] = useState(null);
+  const [tLon, setTLon] = useState(null);
 
   const fetchData = async () => {
     const response = await fetch(SERVER + '/api/get-glider-data', {
@@ -22,12 +25,12 @@ export default function Home() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      setErrorMessage(errorData.error); 
-      setResponseData(null); 
+      setErrorMessage(errorData.error);
+      setResponseData(null);
     } else {
       const data = await response.json();
       setResponseData(data);
-      setErrorMessage(''); 
+      setErrorMessage('');
     }
   };
 
@@ -43,11 +46,29 @@ export default function Home() {
     if (!response.ok) {
       console.log(response);
       const errorData = await response.json();
-      setErrorMessage(errorData.error); 
+      setErrorMessage(errorData.error);
       setAllGliders(null); // Clear the response data if there's an error.
     } else {
       const data = await response.json();
       setAllGliders(data);
+      setErrorMessage(''); // Clear any previous error messages.
+    }
+  };
+
+  const changeGlider = async () => {
+    const response = await fetch(SERVER + '/api/change-glider-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 'call_sign': inputCallSign, 'abort': abort, 't_lat': tLat, 't_lon': tLon }),
+    });
+
+    if (!response.ok) {
+      console.log(response);
+      const errorData = await response.json();
+      setErrorMessage(errorData.error);
+    } else {
       setErrorMessage(''); // Clear any previous error messages.
     }
   };
@@ -79,7 +100,7 @@ export default function Home() {
     setIsPolling(true); // Start polling
   };
 
-  fetchGliders();
+  // fetchGliders();
 
   return (
     <div className="p-4">
@@ -101,6 +122,37 @@ export default function Home() {
         >
           Start Polling
         </button>
+        {isPolling && (
+          <div>
+            <input
+              type="text"
+              value={abort}
+              onChange={(e) => setAbort(Number(e.target.value))}
+              className="border rounded px-3 py-2 w-full mt-2"
+              placeholder="Enter the new abort status, 0 or 1"
+            />
+            <input
+              type="text"
+              value={tLat}
+              onChange={(e) => setTLat(parseFloat(e.target.value))}
+              className="border rounded px-3 py-2 w-full mt-2"
+              placeholder="Enter the new target latitude"
+            />
+            <input
+              type="text"
+              value={tLon}
+              onChange={(e) => setTLon(parseFloat(e.target.value))}
+              className="border rounded px-3 py-2 w-full mt-2"
+              placeholder="Enter the new target longitude"
+            />
+            <button
+              onClick={changeGlider}
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2"
+            >
+              Change glider data
+            </button>
+          </div>
+        )}
       </div>
 
       {errorMessage && <ErrorDisplay message={errorMessage} />}
@@ -115,10 +167,10 @@ type GlidersDisplayProps = {
 };
 
 function GlidersDisplay({ data }: GlidersDisplayProps) {
-  let gliders = data["gliders"];
+  let gliders = data["gliders"].join(", ");
   return (
-    <div className="border rounded p-4 bg-gray-100">
-      <p>{gliders}</p>
+    <div className="border rounded p-2 bg-gray-100 mb-2">
+      <p>Available gliders: {gliders}</p>
     </div>
   );
 }
@@ -165,6 +217,6 @@ function ResponseDisplay({ data }: ResponseDisplayProps) {
 
 function formatKey(key: string) {
   return key
-    .replace(/_/g, ' ') 
-    .replace(/\b\w/g, (char) => char.toUpperCase()); 
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
