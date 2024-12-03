@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-const SERVER = 'http://127.0.0.1:5000';
+const SERVER = 'http://strato.cnicholson.hackclub.app';
 
 export default function Home() {
   const [responseData, setResponseData] = useState(null);
