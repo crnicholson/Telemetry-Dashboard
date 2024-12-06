@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 
-const SERVER = 'http://strato.cnicholson.hackclub.app';
+// const SERVER = 'http://strato.cnicholson.hackclub.app';
+const SERVER = 'http://127.0.0.1:36563';
+// const SERVER = 'https://kttj2dbv-36563.use.devtunnels.ms/';
 
 export default function Home() {
   const [responseData, setResponseData] = useState(null);
@@ -10,6 +12,7 @@ export default function Home() {
   const [isPolling, setIsPolling] = useState(false);
   const [allGliders, setAllGliders] = useState([]);
   const [selectedGlider, setSelectedGlider] = useState('');
+  const [password, setPassword] = useState('');
   const [abort, setAbort] = useState('');
   const [tLat, setTLat] = useState('');
   const [tLon, setTLon] = useState('');
@@ -38,7 +41,7 @@ export default function Home() {
     if (isPolling) {
       const intervalId = setInterval(() => {
         fetchData();
-      }, 500);
+      }, 2000);
 
       return () => clearInterval(intervalId);
     }
@@ -51,14 +54,19 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ call_sign: selectedGlider }),
+        body: JSON.stringify({ call_sign: selectedGlider, password: password }),
       });
-      if (!response.ok) throw new Error('Failed to fetch glider data.');
-      const data = await response.json();
-      setResponseData(data);
-      setErrorMessage('');
+      if (!response.ok) {
+        setIsPolling(false);
+        const errorData = await response.json();
+        setErrorMessage(errorData.error);
+      } else {
+        const data = await response.json();
+        setResponseData(data);
+        setErrorMessage('');
+      }
     } catch (error) {
-      setErrorMessage('Error fetching glider data.');
+      setErrorMessage('Error fetching glider data. Try changing the password.');
     }
   };
 
@@ -86,6 +94,9 @@ export default function Home() {
   const handleStartPolling = () => {
     if (!selectedGlider) {
       setErrorMessage('Please select a glider.');
+      return;
+    } if (!password) {
+      setErrorMessage('Please enter a password.');
       return;
     } else {
       setErrorMessage('');
@@ -118,6 +129,19 @@ export default function Home() {
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="bg-gray-50 rounded-lg shadow-lg p-6 mb-6">
+        <label className="block text-lg font-medium text-gray-700 mb-2">
+          Password:
+        </label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          placeholder="Enter your password"
+        />
       </div>
 
       <button
@@ -182,40 +206,44 @@ type ResponseDisplayProps = {
 function ResponseDisplay({ data }: ResponseDisplayProps) {
   const groupedData = {
     "Location Data": {
-      Lat: data.Lat,
-      Lon: data.Lon,
-      Alt: data.Alt,
-      "Target Lat": data.Target_Lat,
-      "Target Lon": data.Target_Lon,
+      Lat: data.lat,
+      Lon: data.lon,
+      Alt: data.alt,
+      "Target Lat": data.t_lat,
+      "Target Lon": data.t_lon,
     },
     "Orientation Data": {
-      Yaw: data.Yaw,
-      Pitch: data.Pitch,
-      Roll: data.Roll,
+      Yaw: data.yaw,
+      Pitch: data.pitch,
+      Roll: data.roll,
     },
     "Time Data": {
-      Time: data.Time,
+      Time: data.time,
     },
     "Sensor Data": {
-      Temp: data.Temp,
-      Pressure: data.Pressure,
-      Humidity: data.Humidity,
-      Volts: data.Volts,
+      Temp: data.temp,
+      Pressure: data.pressure,
+      Humidity: data.humidity,
+      Volts: data.volts,
     },
     "Communication Data": {
-      "Received Abort": data.Received_Abort,
-      "Tx Count": data.Tx_Count,
-      "Rx Count": data.Rx_Count,
-      RSSI: data.RSSI,
-      SNR: data.SNR,
+      "Received Abort": data.received_abort,
+      "Tx Count": data.tx_count,
+      "Rx Count": data.rx_count,
+      "RSSI": data.rssi,
+      "SNR": data.snr,
     },
     "Uploader Data": {
-      "Uploader Lat": data.Uploader_Lat,
-      "Uploader Lon": data.Uploader_Lon,
-      "Uploader Alt": data.Uploader_Alt,
+      "Uploader Lat": data.u_lat,
+      "Uploader Lon": data.u_lon,
+      "Uploader Alt": data.u_alt,
     },
-    "Miscellaneous Data": {
-      ID: data.ID,
+    "User Data": {
+      "User 1": data.user_1,
+      "User 2": data.user_2,
+      "User 3": data.user_3,
+      "User 4": data.user_4,
+      "User 5": data.user_5,
     },
   };
 
@@ -240,3 +268,4 @@ function ResponseDisplay({ data }: ResponseDisplayProps) {
     </div>
   );
 }
+
